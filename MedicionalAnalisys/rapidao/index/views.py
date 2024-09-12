@@ -1,3 +1,5 @@
+from django.shortcuts import render
+
 # FastAPI libs
 from fastapi import FastAPI, File, UploadFile, status, HTTPException
 from fastapi.responses import JSONResponse
@@ -9,25 +11,7 @@ from tensorflow.keras.preprocessing import image
 import numpy as np
 import os
 
-# Configuração do projeto
-app = FastAPI()
 
-orig_origins = [
-    "http://127.0.0.1:5500",
-    "http://localhost:5500", # URL do frontend
-]
-
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=orig_origins,
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
-
-
-
-# Variáveis do modelo e tamanho da imagem
 MODEL_PATH = "modelo_melanoma.h5"
 IMG_HEIGHT = 180
 IMG_WIDTH = 180
@@ -43,25 +27,27 @@ try:
 except Exception as e:
     raise HTTPException(status_code=500, detail=f"Erro ao carregar o modelo: {str(e)}")
 
-
-@app.post("/upload-image/")
-async def upload_image(file: UploadFile = File(...)):
-    # Verifica tipo de arquivo
+# Create your views here.
+def render(request):
+    return render('index/index.html')
+        # Verifica tipo de arquivo
     # if file.content_type not in ["image/jpeg", "image/png", "image/jpg"]:
     #     return JSONResponse(content={"error": "Tipo de arquivo inválido!"}, status_code=status.HTTP_415_UNSUPPORTED_MEDIA_TYPE)
 
     # Salva arquivo no servidor temporariamente
+    
+def upload_image(request):
     try:
+        file = request.Files.get('file')
         file_location = f"uploaded_images/{file.filename}"
         with open(file_location, "wb") as image_file:
-            content = await file.read()
+            content = file.read()
             image_file.write(content)
 
         # Faz a classificação da imagem
         result = catalog_image(file_location)
         
         # Retorna o resultado da classificação
-        print("jsdghfjhgsdhfgjdsgfgsdgfhgsjdf")
         return JSONResponse(content={"message": "OK", "prediction": result}, status_code=status.HTTP_200_OK)
 
     except Exception as e:
@@ -84,9 +70,3 @@ def catalog_image(file_path):
         return {"class": int(predicted_class), "confidence": float(confidence)}
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Erro ao processar a imagem: {str(e)}")
-
-
-# Initialize server
-if __name__ == "__main__":
-    import uvicorn
-    uvicorn.run("main:app", host="127.0.0.1", port=8000, reload=True)
