@@ -1,6 +1,7 @@
 /venv/
 .jpg
 .png
+.jpeg
 
 /Train/
 /Test/
