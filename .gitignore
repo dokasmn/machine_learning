@@ -1,1 +1,21 @@
+# Ignorar o diretório Yolo3 inteiro
 Yolo3/
+
+# Ignorar o ambiente virtual
+venv/
+
+# Ignorar todas as imagens
+*.jpg
+*.png
+*.jpeg
+
+# Ignorar pastas específicas
+Train/
+Test/
+uploaded_images/
+
+# Ignorar arquivos do TensorFlow (.h5 model files)
+*.h5
+
+# Ignorar o jQuery
+jquery.js
